@@ -4,8 +4,8 @@ au new 1-helloworld
 cd 1-helloworld
 au run --watch
 
-2-todo
-au new 2-todo
+2-component
+au new 2-component
 
 todo.ts
 export class Todo {
@@ -33,7 +33,7 @@ app.html
 
 
 3-events
-
+au new 3-events
 app.ts
 heading: string = "Todos";
 todoDescription: string = "";
@@ -62,15 +62,30 @@ app.html
 
   <button click.trigger="removeTodo(todo)">Remove Todo</button>
 
-4-style-class-binding
+4-class-style-binding
+au new 4-class-style-binding
+
 index.html
 <style>
-    body { font-family: Verdana, Arial; }
-    .strikeout { text-decoration: line-through; }
-    ul { padding-left: 0px; }
-    li { list-style-type: none; } 
-  </style>
+  body { font-family: Verdana, Arial; }
+  .strikeout { text-decoration: line-through; }
+  ul { padding-left: 0px; }
+  li { list-style-type: none; } 
+</style>
 
 app.html
-<span class.bind="todo.done ? 'strikeout': ''">${todo.description}</span>
+<span class.bind="t.done ? 'strikeout': ''">${t.description}</span>
 
+
+app.ts
+styleString: string = 'text-decoration: line-through;';
+styleObject: any = {
+'text-decoration': 'line-through'
+};
+
+app.html
+<span style.bind="t.done ? styleString : ''">${t.description}</span>
+<span css.bind="t.done ? styleString : ''">${t.description}</span>
+<span style.bind="t.done ? ${styleObject}: ''">${t.description}</span>
+<span css.bind="t.done ? ${styleObject}: ''">${t.description}</span>
+<span css="text-decoration: ${t.done ? 'line-through': ''}">${t.description}</span>
