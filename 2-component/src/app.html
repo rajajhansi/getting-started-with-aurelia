@@ -1,0 +1,9 @@
+<template>
+  <h1>${heading}</h1>
+  <ul>
+    <li repeat.for="t of todos">
+      <input type="checkbox" checked.bind="t.done">
+      <span>${t.description}</span>
+    </li>
+  </ul>
+</template>

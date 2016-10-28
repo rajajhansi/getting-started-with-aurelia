@@ -1,0 +1,76 @@
+1-helloworld
+npm install -g aurelia-cli
+au new 1-helloworld
+cd 1-helloworld
+au run --watch
+
+2-todo
+au new 2-todo
+
+todo.ts
+export class Todo {
+    constructor(private done: boolean, private description: string) {}
+}
+
+app.ts
+import {Todo} from "./todo";
+
+export class App {  
+  todos: Todo[] = [
+    new Todo(false, "Task 1"),
+    new Todo(false, "Task 2")
+  ];
+}
+app.html
+<template>  
+  <ul>
+    <li repeat.for="todo of todos">
+      <input type="checkbox" checked.bind="todo.done">
+      <span>${todo.description}</span>      
+    </li>
+  </ul>
+</template>
+
+
+3-events
+
+app.ts
+heading: string = "Todos";
+todoDescription: string = "";
+
+addTodo() {
+    
+	if(this.todoDescription) {
+		this.todos.push(new Todo(false, this.todoDescription));
+		this.todoDescription = "";
+	}
+}
+
+removeTodo(todo) {
+	let index = this.todos.indexOf(todo);
+	if(index !== -1) {
+		this.todos.splice(index, 1);
+	}
+}
+
+app.html
+<h1>${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form> 
+
+  <button click.trigger="removeTodo(todo)">Remove Todo</button>
+
+4-style-class-binding
+index.html
+<style>
+    body { font-family: Verdana, Arial; }
+    .strikeout { text-decoration: line-through; }
+    ul { padding-left: 0px; }
+    li { list-style-type: none; } 
+  </style>
+
+app.html
+<span class.bind="todo.done ? 'strikeout': ''">${todo.description}</span>
+
