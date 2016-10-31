@@ -1,0 +1,14 @@
+<template>
+  <h1>${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul>
+    <li repeat.for="t of todos">
+      <compose view-model="todo" view="todo-upper.html" model.bind="t"></compose>
+      <button click.trigger="removeTodo(t)">Remove Todo</button>
+    </li>
+  </ul>
+</template>

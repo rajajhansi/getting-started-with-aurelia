@@ -89,3 +89,133 @@ app.html
 <span style.bind="t.done ? ${styleObject}: ''">${t.description}</span>
 <span css.bind="t.done ? ${styleObject}: ''">${t.description}</span>
 <span css="text-decoration: ${t.done ? 'line-through': ''}">${t.description}</span>
+
+5-binding-templating-composition
+au new 5-binding-templating-composition
+
+todo.ts
+export class Todo {
+    constructor(private done: boolean, private description: string){}
+    activate(model: Todo) {
+        this.done = model.done;
+        this.description = model.description;
+    }
+}
+
+todo.html
+<template>
+    <input type="checkbox" checked.bind="done">
+    <span css="text-decoration: ${done ? 'line-through' : ''}">${description}</span>
+</template>
+
+todo-upper.html
+<template>
+    <input type="checkbox" checked.bind="done">
+    <span css="text-decoration: ${done ? 'line-through' : ''}">${description.toUpperCase() }</span>
+</template>
+
+app.html notes: using view in <compose> is optional if a view with the same name as viewmodel (with .html extension) is defined. You can use another view by
+providing the path to the .html file as the value of "view" attribute.
+
+app.html
+<template>  
+  <h1>${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul>
+    <li repeat.for="t of todos">
+      <compose view-model="todo" view="todo-upper.html"  model.bind="t"></compose>
+      <button click.trigger="removeTodo(t)">Remove Todo</button>
+    </li>
+  </ul>
+</template>
+
+6-custom-elements
+au new 6-custom-elements
+
+todo.ts
+import {inject, customElement, bindable} from 'aurelia-framework';
+
+@customElement("todo")
+@inject(Element)
+export class Todo {
+    @bindable done: boolean;
+    @bindable description: string
+    constructor(private element: Element){
+      console.log(`Created Todo with ${this.done} ${this.description}`);
+    }
+
+    remove(){
+      var event = new CustomEvent('remove', { 
+        detail: this,
+        bubbles: true
+      });
+    
+    this.element.dispatchEvent(event);
+    }
+}
+
+todo.html
+<template>
+  <input type="checkbox" checked.bind="done">
+  <span css="text-decoration: ${done ? 'line-through' : ''}">${description}</span>
+  <button click.trigger="remove()">Remove Todo</button>
+</template>
+
+app.html
+<template>
+  <require from="./resources/elements/todo"></require>
+  <h1>${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul>
+    <li repeat.for="t of todos">
+      <!--<input type="checkbox" checked.bind="t.done">
+      <span css="text-decoration: ${t.done ? 'line-through' : ''}">${t.description}</span>
+      <button click.trigger="removeTodo(t)">Remove Todo</button>-->
+      <todo done="${t.done}" description="${t.description}" remove.delegate="removeTodo($event.detail)"></todo>
+    </li>
+  </ul>
+</template>
+
+
+app.ts
+import {Todo} from "./resources/elements/todo";
+
+export class App {
+  heading = 'Todos';
+  todos: any[] = [
+    {done:false, description: "Task 1" },
+    {done:false, description: "Task 2" }
+  ]
+  todoDescription: string;
+  styleString: string = 'text-decoration: line-through;';
+  styleObject: any = {
+    'text-decoration': 'line-through'
+  };
+
+  addTodo() {
+    if(this.todoDescription) {
+      this.todos.push({done: false, description: this.todoDescription});
+      this.todoDescription = "";
+    }
+  }
+
+  // removeTodo(todoDetail: any) {
+  //   console.log(todoDetail.description);
+  // }
+  removeTodo(todo: Todo) {
+    //console.log($event.detail.description);
+    console.log(`Removing ${todo.description} `);
+    let index = this.todos.indexOf(todo);
+    if(index !== -1) {
+      this.todos.splice(index, 1);
+    } 
+  }
+}
