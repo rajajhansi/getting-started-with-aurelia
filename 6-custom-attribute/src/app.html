@@ -1,0 +1,16 @@
+<template>
+  <require from="./resources/attributes/upper-case"></require>
+  <require from="./resources/attributes/case"></require>
+  <h1 upper-case>${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul>
+    <li repeat.for="t of todos">
+      <compose view-model="todo" view="todo.html" model.bind="t" case="${$odd ? 'uppercase' : 'lowercase'}"></compose>
+      <button click.trigger="removeTodo(t)">Remove Todo</button>
+    </li>
+  </ul>
+</template>

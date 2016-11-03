@@ -133,8 +133,147 @@ app.html
   </ul>
 </template>
 
-6-custom-elements
+6-custom-attribute
+au new 6-custom-attribute
+au generate attribute upper-case
+upper-case.ts
+import {autoinject} from 'aurelia-framework';
+
+@autoinject()
+export class UpperCaseCustomAttribute {
+  constructor(private element: Element) {
+    this.element.style.textTransform = "uppercase";
+    this.element.style.backgroundColor = "red";
+  }
+
+  valueChanged(newValue, oldValue) {
+
+  }
+}
+
+app.html
+<template>
+  <require from="./resources/attributes/upper-case"></require>
+  <h1 upper-case>${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul>
+    <li repeat.for="t of todos">
+      <compose view-model="todo" view="todo.html" model.bind="t" upper-case></compose>
+      <button click.trigger="removeTodo(t)">Remove Todo</button>
+    </li>
+  </ul>
+</template>
+
+case.ts
+import {autoinject} from 'aurelia-framework';
+
+@autoinject()
+export class CaseCustomAttribute {
+  constructor(private element: Element) { }
+
+  valueChanged(newValue, oldValue) {
+    this.element.style.textTransform = newValue;
+  }
+}
+
+app.html
+<template>
+  <require from="./resources/attributes/upper-case"></require>
+  <require from="./resources/attributes/case"></require>
+  <h1 case"uppercase">${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul>
+    <li repeat.for="t of todos">
+      <compose view-model="todo" view="todo.html" model.bind="t" case="${$odd ? 'uppercase' : 'lowercase'}"></compose>
+      <button click.trigger="removeTodo(t)">Remove Todo</button>
+    </li>
+  </ul>
+</template>
+
+case-color.ts
+import {bindable, autoinject} from 'aurelia-framework';
+
+@autoinject()
+export class CaseColorCustomAttribute {
+  @bindable case : string;
+  @bindable color : string;
+  constructor(private element: Element) { }
+
+  caseChanged(newCase: string, oldCase: string) {
+    this.element.style.textTransform = newCase;
+  }
+
+  colorChanged(newColor: string, oldColor: string) {
+    this.element.style.color = newColor;
+  }
+}
+
+app.ts
+import {Todo} from "./todo";
+
+export class App {
+  heading = 'Todos';
+  todos: Todo[] = [
+    new Todo(false, "Task 1"),
+    new Todo(true, "Task 2")
+  ]
+  todoDescription: string;
+  styleString: string = 'text-decoration: line-through;';
+  styleObject: any = {
+    'text-decoration': 'line-through'
+  };
+
+  oddItemCase: string = "uppercase";
+  oddItemColor: string = "red";
+  evenItemCase: string = "lowercase";
+  evenItemColor: string = "green";
+  addTodo() {
+    if(this.todoDescription) {
+      this.todos.push(new Todo(false, this.todoDescription));
+      this.todoDescription = "";
+    }
+  }
+
+  removeTodo(todo: Todo) {
+    let index = this.todos.indexOf(todo);
+    if(index !== -1) {
+      this.todos.splice(index, 1);
+    } 
+  }
+}
+
+app.html
+<template>
+  <require from="./resources/attributes/upper-case"></require>
+  <require from="./resources/attributes/case"></require>
+  <require from="./resources/attributes/case-color"></require>
+  <h1>${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul>
+    <li repeat.for="t of todos">
+      <compose if.bind="$odd" view-model="todo" view="todo.html" model.bind="t" case-color="case.bind: oddItemCase; color.bind: oddItemColor"></compose>
+      <compose if.bind="$even" view-model="todo" view="todo.html" model.bind="t" case-color="case.bind: evenItemCase; color.bind: evenItemColor"></compose>
+      <button click.trigger="removeTodo(t)">Remove Todo</button>
+    </li>
+  </ul>
+</template>
+
+
+6-custom-element
 au new 6-custom-elements
+au generate element todo
 
 todo.ts
 import {inject, customElement, bindable} from 'aurelia-framework';
@@ -142,6 +281,7 @@ import {inject, customElement, bindable} from 'aurelia-framework';
 @customElement("todo")
 @inject(Element)
 export class Todo {
+    @bindable id: number;
     @bindable done: boolean;
     @bindable description: string
     constructor(private element: Element){
@@ -150,7 +290,7 @@ export class Todo {
 
     remove(){
       var event = new CustomEvent('remove', { 
-        detail: this,
+        detail: {id: this.id, done: this.done, description: this.description},
         bubbles: true
       });
     
@@ -165,6 +305,40 @@ todo.html
   <button click.trigger="remove()">Remove Todo</button>
 </template>
 
+app.ts
+import {Todo} from "./resources/elements/todo";
+
+export class App {
+  heading = 'Todos';
+  todos: any[] = [
+    {id: 1, done:false, description: "Task 1" },
+    {id: 2, done:false, description: "Task 2" }
+  ]
+  todoDescription: string;
+  styleString: string = 'text-decoration: line-through;';
+  styleObject: any = {
+    'text-decoration': 'line-through'
+  };
+
+  getNextId() : number {
+    return this.todos.length + 1;
+  }
+  addTodo() {
+    if(this.todoDescription) {
+      this.todos.push({id: this.getNextId(), done: false, description: this.todoDescription});
+      this.todoDescription = "";
+    }
+  }
+
+  removeTodo(todo: any) {
+    console.log(`Removing ${todo.description} `);
+    let index = this.todos.findIndex(t => t.id == todo.id);
+    if(index !== -1) {
+      this.todos.splice(index, 1);
+    } 
+  }
+}
+
 app.html
 <template>
   <require from="./resources/elements/todo"></require>
@@ -176,14 +350,44 @@ app.html
 
   <ul>
     <li repeat.for="t of todos">
-      <!--<input type="checkbox" checked.bind="t.done">
-      <span css="text-decoration: ${t.done ? 'line-through' : ''}">${t.description}</span>
-      <button click.trigger="removeTodo(t)">Remove Todo</button>-->
-      <todo done="${t.done}" description="${t.description}" remove.delegate="removeTodo($event.detail)"></todo>
+      <todo id="${t.id}" done="${t.done}" description="${t.description}" remove.delegate="removeTodo($event.detail)"></todo>
     </li>
   </ul>
 </template>
 
+7-nested-custom-elements
+au new 7-nested-custom-elementss
+au generate element todo-list
+
+todo-list.ts
+import {bindable} from 'aurelia-framework';
+import {Todo} from "./todo";
+
+export class TodoList {
+  @bindable todos: any[];
+  
+  todosChanged(newTodos, oldTodos) {
+    console.log(newTodos);
+  }
+
+  removeTodo(todo: any) {
+    console.log(`Removing ${todo.description} `);
+    let index = this.todos.findIndex(t => t.id == todo.id);
+    if(index !== -1) {
+      this.todos.splice(index, 1);
+    } 
+  }
+}
+
+todo-list.html
+<template>
+  <require from="./todo"></require>
+  <ul>
+    <li repeat.for="t of todos">
+      <todo id.bind="t.id" done.bind="t.done" description.bind="t.description" remove.delegate="removeTodo($event.detail)"></todo>
+    </li>
+  </ul>
+</template>
 
 app.ts
 import {Todo} from "./resources/elements/todo";
@@ -191,8 +395,8 @@ import {Todo} from "./resources/elements/todo";
 export class App {
   heading = 'Todos';
   todos: any[] = [
-    {done:false, description: "Task 1" },
-    {done:false, description: "Task 2" }
+    {id: 1, done:false, description: "Task 1" },
+    {id: 2, done:false, description: "Task 2" }
   ]
   todoDescription: string;
   styleString: string = 'text-decoration: line-through;';
@@ -200,22 +404,42 @@ export class App {
     'text-decoration': 'line-through'
   };
 
+  getNextId() : number {
+    return this.todos.length + 1;
+  }
   addTodo() {
     if(this.todoDescription) {
-      this.todos.push({done: false, description: this.todoDescription});
+      this.todos.push({id: this.getNextId(), done: false, description: this.todoDescription});
       this.todoDescription = "";
     }
   }
+}
 
-  // removeTodo(todoDetail: any) {
-  //   console.log(todoDetail.description);
-  // }
-  removeTodo(todo: Todo) {
-    //console.log($event.detail.description);
-    console.log(`Removing ${todo.description} `);
-    let index = this.todos.indexOf(todo);
-    if(index !== -1) {
-      this.todos.splice(index, 1);
-    } 
+app.html
+import {Todo} from "./resources/elements/todo";
+
+export class App {
+  heading = 'Todos';
+  todos: any[] = [
+    {id: 1, done:false, description: "Task 1" },
+    {id: 2, done:false, description: "Task 2" }
+  ]
+  todoDescription: string;
+  styleString: string = 'text-decoration: line-through;';
+  styleObject: any = {
+    'text-decoration': 'line-through'
+  };
+
+  getNextId() : number {
+    return this.todos.length + 1;
+  }
+  addTodo() {
+    if(this.todoDescription) {
+      this.todos.push({id: this.getNextId(), done: false, description: this.todoDescription});
+      this.todoDescription = "";
+    }
   }
 }
+
+
+8-custom-attribute
