@@ -15,3 +15,9 @@ https://youtu.be/tFenkTrwJx4
 
 ##Part 5 - Using Composition  
 https://youtu.be/_eJRnAjF99A  
+
+##Part 6 - Creating Custom Attribute 
+https://youtu.be/-ju_sCPI1Eg
+
+##Part 7 - Custom Attribute with Single Value Binding  
+https://youtu.be/SpcbR5mXTZI 
