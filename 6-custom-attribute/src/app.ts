@@ -13,8 +13,12 @@ export class App {
   };
   oddItemCase: string = "uppercase";
   oddItemColor: string = "red";
+  oddItemStyle: string = "oblique";
+  oddItemWeight: string = "bold";
   evenItemCase: string = "lowercase";
   evenItemColor: string = "green";
+  evenItemStyle: string = "italic";
+  evenItemWeight: string = "lighter";
   addTodo() {
     if(this.todoDescription) {
       this.todos.push(new Todo(false, this.todoDescription));

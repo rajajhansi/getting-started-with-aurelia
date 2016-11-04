@@ -168,6 +168,7 @@ app.html
   </ul>
 </template>
 
+7-custom-attribute-single-value-binding
 case.ts
 import {autoinject} from 'aurelia-framework';
 
@@ -198,6 +199,7 @@ app.html
   </ul>
 </template>
 
+8-custom-attribute-options-binding
 case-color.ts
 import {bindable, autoinject} from 'aurelia-framework';
 
@@ -270,9 +272,42 @@ app.html
   </ul>
 </template>
 
+9-custom-attribute-dynamic-options-binding
+dynamic-style.ts
+import {dynamicOptions, autoinject} from 'aurelia-framework';
 
-6-custom-element
-au new 6-custom-elements
+@dynamicOptions
+@autoinject()
+export class DynamicStyleCustomAttribute {
+  constructor(private element: Element) { }
+
+  propertyChanged(name: string, newValue: string, oldValue: string) {
+    switch(name) {
+      case "case":
+        this.element.style.textTransform = newValue;
+        break;
+      case "color":
+        this.element.style.color = newValue;
+        break;
+      case "style":
+        this.element.style.fontStyle = newValue;
+        break;
+      default:
+        this.element.style[`${name}`] = newValue;
+        break;
+    }
+  }
+}
+
+app.ts
+  oddItemStyle: string = "oblique";
+  oddItemWeight: string = "bold";
+  
+  evenItemStyle: string = "italic";
+  evenItemWeight: string = "lighter";
+
+10-custom-element
+au new 9-custom-elements
 au generate element todo
 
 todo.ts
@@ -355,8 +390,8 @@ app.html
   </ul>
 </template>
 
-7-nested-custom-elements
-au new 7-nested-custom-elementss
+10-nested-custom-elements
+au new 10-nested-custom-elementss
 au generate element todo-list
 
 todo-list.ts
@@ -440,6 +475,3 @@ export class App {
     }
   }
 }
-
-
-8-custom-attribute

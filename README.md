@@ -21,3 +21,9 @@ https://youtu.be/-ju_sCPI1Eg
 
 ##Part 7 - Custom Attribute with Single Value Binding  
 https://youtu.be/SpcbR5mXTZI 
+
+##Part 8 - Custom Attribute with Options Binding  
+https://youtu.be/0RAHNWyLQLQ
+
+##Part 9 - Custom Attribute with Dynamic Options Binding  
+https://youtu.be/LU0pBwLAxnY

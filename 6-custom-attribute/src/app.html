@@ -1,6 +1,4 @@
 <template>
-  <require from="./resources/attributes/upper-case"></require>
-  <require from="./resources/attributes/case"></require>
   <h1 upper-case>${heading}</h1>
   <form submit.trigger="addTodo()">
     <input type="text" value.bind="todoDescription">
@@ -9,7 +7,8 @@
 
   <ul>
     <li repeat.for="t of todos">
-      <compose view-model="todo" view="todo.html" model.bind="t" case="${$odd ? 'uppercase' : 'lowercase'}"></compose>
+      <compose if.bind="$odd" view-model="todo" view="todo.html" model.bind="t" dynamic-style="case.bind: oddItemCase; color.bind: oddItemColor; style.bind: oddItemStyle; fontWeight.bind: oddItemWeight"></compose>
+      <compose if.bind="$even" view-model="todo" view="todo.html" model.bind="t" dynamic-style="case.bind: evenItemCase; color.bind: evenItemColor; style.bind: evenItemStyle; fontWeight.bind: evenItemWeight"></compose>
       <button click.trigger="removeTodo(t)">Remove Todo</button>
     </li>
   </ul>

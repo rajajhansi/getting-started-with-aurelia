@@ -29,8 +29,12 @@ define('app',["require", "exports", "./todo"], function (require, exports, todo_
             };
             this.oddItemCase = "uppercase";
             this.oddItemColor = "red";
+            this.oddItemStyle = "oblique";
+            this.oddItemWeight = "bold";
             this.evenItemCase = "lowercase";
             this.evenItemColor = "green";
+            this.evenItemStyle = "italic";
+            this.evenItemWeight = "lighter";
         }
         App.prototype.addTodo = function () {
             if (this.todoDescription) {
@@ -83,6 +87,12 @@ define('main',["require", "exports", './environment'], function (require, export
 define('resources/index',["require", "exports"], function (require, exports) {
     "use strict";
     function configure(config) {
+        config.globalResources([
+            "./attributes/case",
+            "./attributes/case-color",
+            "./attributes/upper-case",
+            "./attributes/dynamic-style"
+        ]);
     }
     exports.configure = configure;
 });
@@ -96,22 +106,33 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-define('resources/attributes/upper-case',["require", "exports", 'aurelia-framework'], function (require, exports, aurelia_framework_1) {
+define('resources/attributes/case-color',["require", "exports", 'aurelia-framework'], function (require, exports, aurelia_framework_1) {
     "use strict";
-    var UpperCaseCustomAttribute = (function () {
-        function UpperCaseCustomAttribute(element) {
+    var CaseColorCustomAttribute = (function () {
+        function CaseColorCustomAttribute(element) {
             this.element = element;
-            this.element.style.textTransform = "uppercase";
         }
-        UpperCaseCustomAttribute.prototype.valueChanged = function (newValue, oldValue) {
+        CaseColorCustomAttribute.prototype.caseChanged = function (newCase, oldCase) {
+            this.element.style.textTransform = newCase;
         };
-        UpperCaseCustomAttribute = __decorate([
+        CaseColorCustomAttribute.prototype.colorChanged = function (newColor, oldColor) {
+            this.element.style.color = newColor;
+        };
+        __decorate([
+            aurelia_framework_1.bindable, 
+            __metadata('design:type', String)
+        ], CaseColorCustomAttribute.prototype, "case", void 0);
+        __decorate([
+            aurelia_framework_1.bindable, 
+            __metadata('design:type', String)
+        ], CaseColorCustomAttribute.prototype, "color", void 0);
+        CaseColorCustomAttribute = __decorate([
             aurelia_framework_1.autoinject(), 
             __metadata('design:paramtypes', [Element])
-        ], UpperCaseCustomAttribute);
-        return UpperCaseCustomAttribute;
+        ], CaseColorCustomAttribute);
+        return CaseColorCustomAttribute;
     }());
-    exports.UpperCaseCustomAttribute = UpperCaseCustomAttribute;
+    exports.CaseColorCustomAttribute = CaseColorCustomAttribute;
 });
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -141,7 +162,75 @@ define('resources/attributes/case',["require", "exports", 'aurelia-framework'], 
     exports.CaseCustomAttribute = CaseCustomAttribute;
 });
 
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\r\n  <require from=\"./resources/attributes/upper-case\"></require>\r\n  <require from=\"./resources/attributes/case\"></require>\r\n  <h1 upper-case>${heading}</h1>\r\n  <form submit.trigger=\"addTodo()\">\r\n    <input type=\"text\" value.bind=\"todoDescription\">\r\n    <button type=\"submit\">Add Todo</button>\r\n  </form>\r\n\r\n  <ul>\r\n    <li repeat.for=\"t of todos\">\r\n      <compose view-model=\"todo\" view=\"todo.html\" model.bind=\"t\" case=\"${$odd ? 'uppercase' : 'lowercase'}\"></compose>\r\n      <button click.trigger=\"removeTodo(t)\">Remove Todo</button>\r\n    </li>\r\n  </ul>\r\n</template>\r\n"; });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+define('resources/attributes/dynamic-style',["require", "exports", 'aurelia-framework'], function (require, exports, aurelia_framework_1) {
+    "use strict";
+    var DynamicStyleCustomAttribute = (function () {
+        function DynamicStyleCustomAttribute(element) {
+            this.element = element;
+        }
+        DynamicStyleCustomAttribute.prototype.propertyChanged = function (name, newValue, oldValue) {
+            switch (name) {
+                case "case":
+                    this.element.style.textTransform = newValue;
+                    break;
+                case "color":
+                    this.element.style.color = newValue;
+                    break;
+                case "style":
+                    this.element.style.fontStyle = newValue;
+                    break;
+                default:
+                    this.element.style[("" + name)] = newValue;
+                    break;
+            }
+        };
+        DynamicStyleCustomAttribute = __decorate([
+            aurelia_framework_1.dynamicOptions,
+            aurelia_framework_1.autoinject(), 
+            __metadata('design:paramtypes', [Element])
+        ], DynamicStyleCustomAttribute);
+        return DynamicStyleCustomAttribute;
+    }());
+    exports.DynamicStyleCustomAttribute = DynamicStyleCustomAttribute;
+});
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+define('resources/attributes/upper-case',["require", "exports", 'aurelia-framework'], function (require, exports, aurelia_framework_1) {
+    "use strict";
+    var UpperCaseCustomAttribute = (function () {
+        function UpperCaseCustomAttribute(element) {
+            this.element = element;
+            this.element.style.textTransform = "uppercase";
+        }
+        UpperCaseCustomAttribute.prototype.valueChanged = function (newValue, oldValue) {
+        };
+        UpperCaseCustomAttribute = __decorate([
+            aurelia_framework_1.autoinject(), 
+            __metadata('design:paramtypes', [Element])
+        ], UpperCaseCustomAttribute);
+        return UpperCaseCustomAttribute;
+    }());
+    exports.UpperCaseCustomAttribute = UpperCaseCustomAttribute;
+});
+
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\r\n  <h1 upper-case>${heading}</h1>\r\n  <form submit.trigger=\"addTodo()\">\r\n    <input type=\"text\" value.bind=\"todoDescription\">\r\n    <button type=\"submit\">Add Todo</button>\r\n  </form>\r\n\r\n  <ul>\r\n    <li repeat.for=\"t of todos\">\r\n      <compose if.bind=\"$odd\" view-model=\"todo\" view=\"todo.html\" model.bind=\"t\" dynamic-style=\"case.bind: oddItemCase; color.bind: oddItemColor; style.bind: oddItemStyle; fontWeight.bind: oddItemWeight\"></compose>\r\n      <compose if.bind=\"$even\" view-model=\"todo\" view=\"todo.html\" model.bind=\"t\" dynamic-style=\"case.bind: evenItemCase; color.bind: evenItemColor; style.bind: evenItemStyle; fontWeight.bind: evenItemWeight\"></compose>\r\n      <button click.trigger=\"removeTodo(t)\">Remove Todo</button>\r\n    </li>\r\n  </ul>\r\n</template>\r\n"; });
 define('text!todo-upper.html', ['module'], function(module) { module.exports = "<template>\r\n    <input type=\"checkbox\" checked.bind=\"done\">\r\n    <span css=\"text-decoration: ${done ? 'line-through' : ''}\">${description.toUpperCase() }</span>\r\n</template>"; });
 define('text!todo.html', ['module'], function(module) { module.exports = "<template>\r\n    <input type=\"checkbox\" checked.bind=\"done\">\r\n    <span css=\"text-decoration: ${done ? 'line-through' : ''}\">${description}</span>\r\n</template>"; });
 //# sourceMappingURL=app-bundle.js.map
