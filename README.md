@@ -27,3 +27,9 @@ https://youtu.be/0RAHNWyLQLQ
 
 ##Part 9 - Custom Attribute with Dynamic Options Binding  
 https://youtu.be/LU0pBwLAxnY
+
+##Part 10 - Creating HTML Only Custom Element  
+https://youtu.be/RGVMjwgsAhs
+
+##Part 11 - Creating Custom Element with Bindable Properties  
+https://youtu.be/es64eEYZQOM

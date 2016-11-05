@@ -307,8 +307,32 @@ app.ts
   evenItemWeight: string = "lighter";
 
 10-custom-element
-au new 9-custom-elements
+au new 10-custom-element
 au generate element todo
+
+todo-hoce.html
+<template bindable="done, description">
+  <input type="checkbox" checked.bind="done">
+  <span css="text-decoration: ${ done ? 'line-through' : '' }">${description}</span>
+</template>
+
+app.html
+<require from="./todo-hoce.html"></require>
+
+<todo-hoce done.bind="t.done" description.bind="t.description"></todo-hoce>
+
+todo.ts
+@bindable private done: boolean;
+@bindable private description: string
+constructor(done: boolean, description: string){
+        this.done = done;
+        this.description = description;
+    }
+
+app.html
+<require from="./todo"></require>
+
+<todo></todo>
 
 todo.ts
 import {inject, customElement, bindable} from 'aurelia-framework';
@@ -339,6 +363,10 @@ todo.html
   <span css="text-decoration: ${done ? 'line-through' : ''}">${description}</span>
   <button click.trigger="remove()">Remove Todo</button>
 </template>
+
+app.html
+<todo if.bind="$odd"  done.bind="t.done" description.bind="t.description" dynamic-style="case.bind: oddItemCase; color.bind: oddItemColor; style.bind: oddItemStyle; fontWeight.bind: oddItemWeight"></todo>
+<todo if.bind="$even"  done.bind="t.done" description.bind="t.description" dynamic-style="case.bind: evenItemCase; color.bind: evenItemColor; style.bind: evenItemStyle; fontWeight.bind: evenItemWeight"></todo>
 
 app.ts
 import {Todo} from "./resources/elements/todo";
