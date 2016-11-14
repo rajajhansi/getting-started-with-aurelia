@@ -306,8 +306,8 @@ app.ts
   evenItemStyle: string = "italic";
   evenItemWeight: string = "lighter";
 
-10-custom-element
-au new 10-custom-element
+10-creating-html-only-custom-element
+au new 10-creating-html-only-custom-element
 au generate element todo
 
 todo-hoce.html
@@ -334,6 +334,449 @@ app.html
 
 <todo></todo>
 
+11-creating-custom-element-with-bindable-properties
+au new 11-creating-custom-element-with-bindable-properties
+
+todo.ts
+import {bindable, customElement} from "aurelia-framework";
+
+@customElement("raja-todo")
+export class TodoCustomElement {
+    @bindable private done: boolean;
+    @bindable private description: string;
+    constructor(done: boolean, description: string){
+        this.done = done;
+        this.description = description;
+    }
+    activate(model: TodoCustomElement) {
+        this.done = model.done;
+        this.description = model.description;
+    }
+}
+
+todo.html
+<template>
+    <input type="checkbox" checked.bind="done">
+    <span css="text-decoration: ${done ? 'line-through' : ''}">${description}</span>
+</template>
+
+app.ts
+import {TodoCustomElement} from "./todo";
+
+export class App {
+  heading = 'Todos';
+  todos: TodoCustomElement[] = [
+    new TodoCustomElement(false, "Task 1"),
+    new TodoCustomElement(true, "Task 2")
+  ]
+  todoDescription: string;
+  styleString: string = 'text-decoration: line-through;';
+  styleObject: any = {
+    'text-decoration': 'line-through'
+  };
+  oddItemCase: string = "uppercase";
+  oddItemColor: string = "red";
+  oddItemStyle: string = "oblique";
+  oddItemWeight: string = "bold";
+  evenItemCase: string = "lowercase";
+  evenItemColor: string = "green";
+  evenItemStyle: string = "italic";
+  evenItemWeight: string = "lighter";
+  addTodo() {
+    if(this.todoDescription) {
+      this.todos.push(new TodoCustomElement(false, this.todoDescription));
+      this.todoDescription = "";
+    }
+  }
+
+  removeTodo(todo: TodoCustomElement) {
+    let index = this.todos.indexOf(todo);
+    if(index !== -1) {
+      this.todos.splice(index, 1);
+    } 
+  }
+}
+
+app.html
+<template>
+  <require from="./todo"></require>
+  <h1 upper-case>${heading}</h1>
+  <form submit.trigger="addTodo()">
+    <input type="text" value.bind="todoDescription">
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul>
+    <li repeat.for="t of todos">
+      <raja-todo done.bind="t.done" description.bind="t.description"></raja-todo>
+      <!--<compose if.bind="$odd" view-model="todo" view="todo.html" model.bind="t" dynamic-style="case.bind: oddItemCase; color.bind: oddItemColor; style.bind: oddItemStyle; fontWeight.bind: oddItemWeight"></compose>
+      <compose if.bind="$even" view-model="todo" view="todo.html" model.bind="t" dynamic-style="case.bind: evenItemCase; color.bind: evenItemColor; style.bind: evenItemStyle; fontWeight.bind: evenItemWeight"></compose>-->
+      <button click.trigger="removeTodo(t)">Remove Todo</button>
+    </li>
+  </ul>
+</template>
+
+12-filtering-and-styling
+au new 12-filtering-and-styling
+index.html<!DOCTYPE html>
+<html>
+  <head>
+    <title>Aurelia</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.6/semantic.min.css">
+    <!--<script
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.6/semantic.min.js"></script>-->
+  </head>
+  <style>
+    body { font-family: Verdana, Arial; }
+    .strikeout { text-decoration: line-through; }
+    ul { padding-left: 0px; }
+    li:only-of-type { list-style-type: none; } 
+  </style>
+  <body aurelia-app="main">
+    <script src="scripts\vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
+    
+  </body>
+</html>
+
+move todo.ts and tod0.html into resources/elements
+
+resources/elements/todo.ts
+import {bindable, bindingMode, customElement} from "aurelia-framework";
+
+@customElement("raja-todo")
+export class TodoCustomElement {
+    @bindable({ defaultBindingMode: bindingMode.twoWay })  done: boolean;
+    @bindable({ defaultBindingMode: bindingMode.twoWay })  description: string;
+    constructor(done: boolean, description: string){
+        this.done = done;
+        this.description = description;
+    }
+
+    doneChanged(newDone, oldDone) {
+        console.log(`done changed to ${newDone}`);
+    }
+    activate(model: TodoCustomElement) {
+        this.done = model.done;
+        this.description = model.description;
+    }
+}
+
+resources/elements/todo.html
+<template>
+    <i class="large tasks middle aligned icon"></i>
+    <div class="ui toggle checkbox">
+    <input type="checkbox" checked.bind="done">
+    <label><span css="text-decoration: ${done ? 'line-through' : ''}">${description}</span></label>
+    </div>
+</template>
+
+resources/index.ts
+import {FrameworkConfiguration} from 'aurelia-framework';
+
+export function configure(config: FrameworkConfiguration) {
+  config.globalResources([
+    "./attributes/case",
+    "./attributes/case-color",
+    "./attributes/upper-case",
+    "./attributes/dynamic-style",
+    "./attributes/auto-focus",
+    "./elements/todo-hoce.html"
+  ]);
+}
+
+
+services/todo-service.ts
+import { Todo } from "../todo";
+export type filterEnum = "all" | "active" | "completed";
+
+export class TodoService {
+  lastId: number = 0;
+  todos: Todo[] = [];
+
+  constructor() { }
+
+  getAllTodos(): Todo[] {
+    return this.todos;
+  }
+
+  getTodoById(id: number): Todo {
+    return this.todos.filter(todo => todo.id === id).pop();
+  }
+
+  addTodo(todo: Todo) : TodoService {
+    if(!todo.id) {
+      todo.id = ++this.lastId;
+    }
+    this.todos.push(todo);
+    return this;
+  }
+
+  deleteTodoById(id: number) : TodoService {
+    this.todos = this.todos.filter(todo => todo.id !== id);
+    return this;
+  }
+
+  updateTodoById(id: number, values: Object = {}): Todo {
+    let todo = this.getTodoById(id);
+    if(!todo) {
+      return null;
+    }
+    Object.assign(todo, values);
+    return todo;
+  }
+
+  toggleTodoDone(todo: Todo): Todo {
+    let updatedTodo = this.updateTodoById(todo.id, { done: !todo.done });
+    return updatedTodo;
+  }
+
+  filterTodos(filterCriteria: filterEnum) : Todo[] {
+    switch(filterCriteria) {
+      case "active":
+        return this.todos.filter((t: Todo) => !t.done);
+      case "completed":
+        return this.todos.filter((t: Todo) => t.done);
+      case "all":
+      default:
+        return this.todos;
+    }     
+  }
+  
+  toggleAllTodos() {
+    this.todos.forEach((t: Todo) => t.done = !t.done);
+  }
+
+  completeAllTodos() {
+    this.todos.forEach((t: Todo) => t.done = true);
+  }
+
+  removeAllTodos() {
+    this.todos.splice(0);
+  }
+
+  removeDoneTodos() {
+    this.todos = this.todos.filter((todo: Todo) => !todo.done);
+  }
+}
+
+
+app.ts
+import {Todo} from "./todo";
+import {filterEnum, TodoService} from "./services/todo-service";
+import {autoinject} from "aurelia-framework";
+import {ObserverLocator} from "aurelia-binding";
+
+@autoinject()
+export class App {
+  heading = "Todos";
+  filteredTodos: Todo[];
+  activeFilter: filterEnum;
+  todoDescription: string = "";
+
+  styleString: string = 'text-decoration: line-through;';
+  styleObject: any = {
+    'text-decoration': 'line-through'
+  };
+  oddItemCase: string = "uppercase";
+  oddItemColor: string = "red";
+  oddItemStyle: string = "oblique";
+  oddItemWeight: string = "bold";
+  evenItemCase: string = "lowercase";
+  evenItemColor: string = "green";
+  evenItemStyle: string = "italic";
+  evenItemWeight: string = "lighter";
+
+  constructor(private todoService: TodoService, private observerLocator: ObserverLocator) {
+    this.activeFilter = "all";
+    this.filterTodos(this.activeFilter);
+  }
+
+  private getTodosCount(filter: filterEnum): number {
+    return this.todoService.filterTodos(filter).length;
+  }
+
+  get allTodosCount(): number {
+    return this.getTodosCount("all");
+  }
+
+  get activeTodosCount(): number {
+    return this.getTodosCount("active");
+  }
+
+  get completedTodosCount(): number {
+    return this.getTodosCount("completed");
+  }
+
+  addTodo() {
+    if(this.todoDescription) {
+      const newTodoItem = new Todo( {done: false, description: this.todoDescription});
+      this.todoService.addTodo(newTodoItem);
+      this.todoDescription = "";
+    }
+    this.filterTodos(this.activeFilter);
+  }
+
+  
+  removeTodo(todo: Todo) {
+    this.todoService.deleteTodoById(todo.id);
+    this.filterTodos(this.activeFilter);
+  }
+
+  filterTodos(filterCriteria: filterEnum) {
+    this.activeFilter = filterCriteria;
+    this.filteredTodos =  this.todoService.filterTodos(this.activeFilter);
+  }
+
+  checkIfAllTodosAreCompleted() {
+    return this.filteredTodos.every(todo => todo.done)
+  }
+
+  toggleAllTodos() {
+    this.todoService.toggleAllTodos();
+    this.filterTodos(this.activeFilter);
+  }
+
+  completeAllTodos() {
+    this.todoService.completeAllTodos();
+    this.checkIfAllTodosAreCompleted();
+    this.filterTodos(this.activeFilter);
+  }
+
+  removeAllTodos() {
+    this.todoService.removeAllTodos();
+    this.filterTodos(this.activeFilter);
+  }
+
+  removeDoneTodos() {
+    this.todoService.removeDoneTodos();
+    this.filterTodos(this.activeFilter);
+  }
+}
+
+
+app.html
+<template>
+  <require from="./resources/elements/todo"></require>
+  <div class="ui raised very padded text container segment">
+    <h1 upper-case>${heading}</h1>
+    <div class="ui horizontal divider">New Todo</div>
+    <form submit.trigger="addTodo()" class="ui form">
+      <div class="field">
+      <input type="text" value.bind="todoDescription" auto-focus placeholder="what needs to be done?">
+      </div>
+      <button type="submit" disabled.bind="todoDescription === ''" class="ui primary button">
+        <i class="icon plus"></i>Add </button>
+    </form>
+    <div class="ui horizontal divider">Status</div>
+    <div class="ui three item menu">
+      <a class.bind="activeFilter === 'all' ? 'active item' : 'item'" click.trigger="filterTodos('all')" >All</a>
+      <a class.bind="activeFilter === 'active' ? 'active item' : 'item'" click.trigger="filterTodos('active')">Active</a>
+      <a class.bind="activeFilter === 'completed' ? 'active item' : 'item'" click.trigger="filterTodos('completed')">Completed</a>
+    </div>
+  
+    <div class="ui floated right menu" show.bind="allTodosCount > 0">
+      <div class="ui right floated blue statistic">
+        <div class="value">
+          <i class="tasks icon"></i>
+        </div>
+        <div class="label">
+          <strong>${allTodosCount}</strong>${allTodosCount === 1 ? ' task ': ' tasks '} 
+        </div>
+      </div>
+      <div class="ui right floated green statistic">
+        <div class="value">
+          <i class="tasks icon"></i>
+        </div>
+        <div class="label">
+          <strong>${activeTodosCount}</strong>${activeTodosCount === 1 ? ' task ': ' tasks '} left
+        </div>
+      </div>
+      <div class="ui right floated red statistic">
+        <div class="value">
+          <i class="tasks icon"></i>
+        </div>
+        <div class="label">
+          <strong>${completedTodosCount}</strong>${completedTodosCount === 1 ? ' task ': ' tasks '} completed
+        </div>
+      </div>
+    </div>
+    <br/><br/>    
+    <div><br/><br/></div>
+    <div class="ui floated right menu">
+      <button class="ui icon negative button" disabled.bind="allTodosCount === 0" click.trigger="removeAllTodos()">
+        <i class="remove icon"></i>
+        Remove All
+      </button>
+      <button class="ui icon negative button" disabled.bind="completedTodosCount === 0" click.trigger="removeDoneTodos()">
+        <i class="remove icon"></i>
+        Remove Completed
+      </button>
+      <button class="ui icon blue button" disabled.bind="allTodosCount === 0" click.trigger="toggleAllTodos()">
+        <i class="toggle on icon"></i>
+        Toggle All
+      </button>
+      <button class="ui icon positive button" disabled.bind="allTodosCount === 0" click.trigger="completeAllTodos()">
+        <i class="right checkmark icon"></i>
+        Complete All
+      </button>
+    </div>
+    <div>
+      <br/><br/>
+      <div class="ui relaxed divided list">
+        <div class="item" repeat.for="t of filteredTodos">
+          <raja-todo done.bind="t.done" description.bind="t.description"></raja-todo>
+          <!--<compose if.bind="$odd" view-model="todo" view="todo.html" model.bind="t" dynamic-style="case.bind: oddItemCase; color.bind: oddItemColor; style.bind: oddItemStyle; fontWeight.bind: oddItemWeight"></compose>
+          <compose if.bind="$even" view-model="todo" view="todo.html" model.bind="t" dynamic-style="case.bind: evenItemCase; color.bind: evenItemColor; style.bind: evenItemStyle; fontWeight.bind: evenItemWeight"></compose>-->
+          <span class="ui floated right menu middle aligned">
+          <button click.trigger="removeTodo(t)" class="ui primary button negative">
+            <i class="icon remove"></i>Remove 
+          </button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+
+12.5 - observing-properties-in-viewmodel
+
+app.ts
+addTodo() {
+    if(this.todoDescription) {
+      const newTodoItem = new Todo( {done: false, description: this.todoDescription});
+      this.observeItem(newTodoItem);
+      this.todoService.addTodo(newTodoItem);
+      this.todoDescription = "";
+    }
+    this.filterTodo(this.activeFilter);
+  }
+
+  observeItem(todoItem) {
+    this.observerLocator.getObserver(todoItem, 'description')
+      .subscribe((o, n) => this.onDescriptionChanged(todoItem));
+
+    this.observerLocator.getObserver(todoItem, 'done')
+      .subscribe((o, n) => this.onDoneChanged(todoItem));
+  }
+
+  onDescriptionChanged(todoItem) {
+    if(todoItem.description === "") {
+      this.removeTodo(todoItem);
+      this.checkIfAllTodosAreCompleted();
+    }
+  }
+
+  onDoneChanged(todoItem) {
+    this.checkIfAllTodosAreCompleted();
+    this.filterTodo(this.activeFilter);
+  }
+
+13-creating-custom-element-with-custom-events
+au new 13-creating-custom-element-with-custom-events
 todo.ts
 import {inject, customElement, bindable} from 'aurelia-framework';
 
@@ -418,8 +861,8 @@ app.html
   </ul>
 </template>
 
-10-nested-custom-elements
-au new 10-nested-custom-elementss
+14-nested-custom-elements
+au new 14-nested-custom-elementss
 au generate element todo-list
 
 todo-list.ts

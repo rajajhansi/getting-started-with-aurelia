@@ -1,0 +1,7 @@
+<template>
+    <i class="large tasks middle aligned icon"></i>
+    <div class="ui toggle checkbox">
+    <input type="checkbox" checked.bind="done">
+    <label><span css="text-decoration: ${done ? 'line-through' : ''}">${description}</span></label>
+    </div>
+</template>

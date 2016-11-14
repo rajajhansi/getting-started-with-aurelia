@@ -1,0 +1,82 @@
+<template>
+  <require from="./resources/elements/todo"></require>
+  <div class="ui raised very padded text container segment">
+    <h1 upper-case>${heading}</h1>
+    <div class="ui horizontal divider">New Todo</div>
+    <form submit.trigger="addTodo()" class="ui form">
+      <div class="field">
+      <input type="text" value.bind="todoDescription" auto-focus placeholder="what needs to be done?">
+      </div>
+      <button type="submit" disabled.bind="todoDescription === ''" class="ui primary button">
+        <i class="icon plus"></i>Add </button>
+    </form>
+    <div class="ui horizontal divider">Status</div>
+    <div class="ui three item menu">
+      <a class.bind="activeFilter === 'all' ? 'active item' : 'item'" click.trigger="filterTodos('all')" >All</a>
+      <a class.bind="activeFilter === 'active' ? 'active item' : 'item'" click.trigger="filterTodos('active')">Active</a>
+      <a class.bind="activeFilter === 'completed' ? 'active item' : 'item'" click.trigger="filterTodos('completed')">Completed</a>
+    </div>
+  
+    <div class="ui floated right menu" show.bind="allTodosCount > 0">
+      <div class="ui right floated blue statistic">
+        <div class="value">
+          <i class="tasks icon"></i>
+        </div>
+        <div class="label">
+          <strong>${allTodosCount}</strong>${allTodosCount === 1 ? ' task ': ' tasks '} 
+        </div>
+      </div>
+      <div class="ui right floated green statistic">
+        <div class="value">
+          <i class="tasks icon"></i>
+        </div>
+        <div class="label">
+          <strong>${activeTodosCount}</strong>${activeTodosCount === 1 ? ' task ': ' tasks '} left
+        </div>
+      </div>
+      <div class="ui right floated red statistic">
+        <div class="value">
+          <i class="tasks icon"></i>
+        </div>
+        <div class="label">
+          <strong>${completedTodosCount}</strong>${completedTodosCount === 1 ? ' task ': ' tasks '} completed
+        </div>
+      </div>
+    </div>
+    <br/><br/>    
+    <div><br/><br/></div>
+    <div class="ui floated right menu">
+      <button class="ui icon negative button" disabled.bind="allTodosCount === 0" click.trigger="removeAllTodos()">
+        <i class="remove icon"></i>
+        Remove All
+      </button>
+      <button class="ui icon negative button" disabled.bind="completedTodosCount === 0" click.trigger="removeDoneTodos()">
+        <i class="remove icon"></i>
+        Remove Completed
+      </button>
+      <button class="ui icon blue button" disabled.bind="allTodosCount === 0" click.trigger="toggleAllTodos()">
+        <i class="toggle on icon"></i>
+        Toggle All
+      </button>
+      <button class="ui icon positive button" disabled.bind="allTodosCount === 0" click.trigger="completeAllTodos()">
+        <i class="right checkmark icon"></i>
+        Complete All
+      </button>
+    </div>
+    <div>
+      <br/><br/>
+      <div class="ui relaxed divided list">
+        <div class="item" repeat.for="t of filteredTodos">
+          <raja-todo done.bind="t.done" description.bind="t.description"></raja-todo>
+          <!--<compose if.bind="$odd" view-model="todo" view="todo.html" model.bind="t" dynamic-style="case.bind: oddItemCase; color.bind: oddItemColor; style.bind: oddItemStyle; fontWeight.bind: oddItemWeight"></compose>
+          <compose if.bind="$even" view-model="todo" view="todo.html" model.bind="t" dynamic-style="case.bind: evenItemCase; color.bind: evenItemColor; style.bind: evenItemStyle; fontWeight.bind: evenItemWeight"></compose>-->
+          <span class="ui floated right menu middle aligned">
+          <button click.trigger="removeTodo(t)" class="ui primary button negative">
+            <i class="icon remove"></i>Remove 
+          </button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
